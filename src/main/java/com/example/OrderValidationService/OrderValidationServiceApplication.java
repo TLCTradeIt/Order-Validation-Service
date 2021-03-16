@@ -29,8 +29,8 @@ public class OrderValidationServiceApplication {
 	public String Hello() throws JSONException {
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("message", "Hello from Order-Validation-Service");
-		jsonObject.put("message-3",restTemplate.exchange("http://localhost:5003", HttpMethod.GET,
-				null, String.class).getBody());
+//		jsonObject.put("message-3",restTemplate.exchange("http://localhost:5003", HttpMethod.GET,
+//				null, String.class).getBody());
 		return jsonObject.toString();
 	}
 
