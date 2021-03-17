@@ -5,16 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f3a31e00-0cb7-4670-a6e6-61ed99ab602d" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/Order-Validation-Service/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Order-Validation-Service/build.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Order-Validation-Service/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Order-Validation-Service/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Order-Validation-Service/gradlew" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Order-Validation-Service/gradlew.bat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Order-Validation-Service/settings.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Order-Validation-Service/src/main/java/com/example/OrderValidationService/OrderValidationServiceApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Order-Validation-Service/src/main/resources/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Order-Validation-Service/src/test/java/com/example/OrderValidationService/OrderValidationServiceApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.8.3/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.8.3/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.8.3/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.8.3/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.8.3/javaCompile/javaCompile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.8.3/javaCompile/javaCompile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
