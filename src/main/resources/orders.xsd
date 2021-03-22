@@ -9,7 +9,7 @@
     <xs:annotation>
         <xs:appinfo>
             <jaxb:globalBindings>
-                <jaxb:javaType name="java.util.Date" xmlType="xs:date">
+                <jaxb:javaType name="java.util.Date" xmlType="xs:dateTime">
                 </jaxb:javaType>
                 <jaxb:javaType name="java.lang.Long" xmlType="xs:long">
                 </jaxb:javaType>
@@ -35,6 +35,8 @@
             <xs:sequence>
                 <xs:element name="orderId" type="xs:long" />
                 <xs:element name="isValidated" type="xs:boolean" />
+                <xs:element name="status" type="xs:string"/>
+                <xs:element name="message" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -50,6 +52,7 @@
             <xs:element name="timestamp" type="xs:dateTime"/>
             <xs:element name="product" type="tns:SoapProduct"/>
             <xs:element name="client" type="tns:SoapClient"/>
+            <xs:element name="portfolio" type="tns:SoapPortfolio"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -58,6 +61,8 @@
             <xs:element name="productId" type="xs:long"/>
             <xs:element name="ticker" type="xs:string"/>
             <xs:element name="exchange" type="xs:string"/>
+            <xs:element name="prodQuantity" type="xs:int"/>
+            <xs:element name="portfolio" type="tns:SoapPortfolio"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -68,4 +73,9 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:complexType name="SoapPortfolio">
+        <xs:sequence>
+            <xs:element name="portfolioId" type="xs:long"/>
+        </xs:sequence>
+    </xs:complexType>
 </xs:schema>
