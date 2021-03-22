@@ -1,0 +1,31 @@
+##########################################################
+>>> POST http://localhost:8080/messages/ HTTP/1.1
+----------------
+"hello"
+
+<<< error [cost: 2347ms]
+----------------
+There was an error accessing to URL: http://localhost:8080/messages/
+
+org.apache.http.conn.HttpHostConnectException: Connect to localhost:8080 [localhost/127.0.0.1] failed: Connection refused: connect
+
+
+##########################################################
+>>> POST http://localhost:5003/messages HTTP/1.1
+----------------
+"hello"
+
+<<< HTTP/1.1 404  [cost: 171ms]
+----------------
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Thu, 18 Mar 2021 18:50:29 GMT
+Keep-Alive: timeout=60
+Connection: keep-alive
+----------------
+{"timestamp":"2021-03-18T18:50:29.392+00:00","status":404,"error":"Not Found","message":"","path":"/messages"}
+
+
