@@ -1,4 +1,4 @@
-package com.example.OrderValidationService.Publishing_To_TE;
+package com.example.ordervalidationservice.Publishing_To_TE;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;

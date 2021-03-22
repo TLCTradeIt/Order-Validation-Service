@@ -1,9 +1,8 @@
-package com.example.OrderValidationService.Publishing_To_TE;
+package com.example.ordervalidationservice.Publishing_To_TE;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.redis.core.RedisHash;
 
 
 @Data

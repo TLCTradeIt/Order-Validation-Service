@@ -16,6 +16,47 @@ ext {
 	set('springCloudVersion', "2020.0.1")
 }
 
+configurations {
+	jaxb
+}
+
+bootJar {
+	archiveBaseName = 'Client-Connectivity'
+	archiveVersion =  '0.1.0'
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/main/java'
+			srcDir 'build/generated-sources/jaxb'
+		}
+	}
+}
+
+task genJaxb {
+	ext.sourcesDir = "${buildDir}/generated-sources/jaxb"
+	ext.schema = "src/main/resources/orders.xsd"
+
+	outputs.dir sourcesDir
+
+	doLast() {
+		project.ant {
+			taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask",
+					classpath: configurations.jaxb.asPath
+			mkdir(dir: sourcesDir)
+
+			xjc(destdir: sourcesDir, schema: schema) {
+				arg(value: "-wsdl")
+				produces(dir: sourcesDir, includes: "**/*.java")
+			}
+		}
+	}
+}
+
+compileJava.dependsOn genJaxb
+
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
@@ -29,6 +70,14 @@ dependencies {
 
 	// https://mvnrepository.com/artifact/redis.clients/jedis
 	implementation group: 'redis.clients', name: 'jedis', version: '3.3.0'
+
+	implementation 'org.springframework.boot:spring-boot-starter-web-services'
+	implementation 'wsdl4j:wsdl4j'
+	jaxb("org.glassfish.jaxb:jaxb-xjc")
+
+	compile('javax.xml.bind:jaxb-api:2.3.0')
+	compile('javax.activation:activation:1.1')
+	compile('org.glassfish.jaxb:jaxb-runtime:2.3.0')
 }
 
 dependencyManagement {
