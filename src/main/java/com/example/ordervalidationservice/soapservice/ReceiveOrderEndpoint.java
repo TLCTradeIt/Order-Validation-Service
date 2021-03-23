@@ -4,6 +4,7 @@ import com.example.ordervalidationservice.MarketData;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
@@ -11,11 +12,14 @@ import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
+
 @Endpoint
 public class ReceiveOrderEndpoint {
 
     @Autowired
-    WebClient webClient;
+    private WebClient.Builder webClient;
 
     @PayloadRoot(namespace = "http://ordervalidationservice.example.com/soapservice", localPart = "SendOrderRequest")
     @ResponsePayload
@@ -28,15 +32,15 @@ public class ReceiveOrderEndpoint {
         response.setStatus("Rejected");
 
         // market data
-        Mono<MarketData> marketData = getMarketData(request.getOrder().getProduct().getTicker());
+        MarketData marketData = getMarketData(request.getOrder().getProduct().getTicker());
 
         // Order Validation
         if (request.getOrder().getSide().equals("Buy")){
             Boolean isBalanceValid = validateAccBalance(request.getOrder().getClient().getAccBalance(), request.getOrder().getPrice());
             if(isBalanceValid){
-                Boolean isBuyPriceValid = validateBuyPrice(request.getOrder().getPrice(), marketData.block().getBID_PRICE(), marketData.block().getMAX_PRICE_SHIFT());
+                Boolean isBuyPriceValid = validateBuyPrice(request.getOrder().getPrice(), marketData.getBID_PRICE(), marketData.getMAX_PRICE_SHIFT());
                 if(isBuyPriceValid){
-                    Boolean isBuyLimitValid = validateBuyLimit(request.getOrder().getQuantity(), marketData.block().getBUY_LIMIT());
+                    Boolean isBuyLimitValid = validateBuyLimit(request.getOrder().getQuantity(), marketData.getBUY_LIMIT());
                     if(isBuyLimitValid){
                         response.setIsValidated(true);
                         response.setStatus("Accepted");
@@ -57,9 +61,9 @@ public class ReceiveOrderEndpoint {
             if(isPresent){
                 Boolean isSellQuantityValid = validateSellQuantity(request.getOrder().getProduct().getProdQuantity(), request.getOrder().getQuantity());
                 if(isSellQuantityValid){
-                    Boolean isSellPriceValid = validateSellPrice(request.getOrder().getPrice(), marketData.block().getASK_PRICE(), marketData.block().getMAX_PRICE_SHIFT());
+                    Boolean isSellPriceValid = validateSellPrice(request.getOrder().getPrice(), marketData.getASK_PRICE(), marketData.getMAX_PRICE_SHIFT());
                     if(isSellPriceValid){
-                        Boolean isSellLimitValid = validateSellLimit(request.getOrder().getQuantity(), marketData.block().getSELL_LIMIT());
+                        Boolean isSellLimitValid = validateSellLimit(request.getOrder().getQuantity(), marketData.getSELL_LIMIT());
                         if(isSellLimitValid){
                             response.setIsValidated(true);
                             response.setStatus("Accepted");
@@ -86,63 +90,43 @@ public class ReceiveOrderEndpoint {
     }
 
     public Boolean validateAccBalance(Double balance, Double price){
-        if (balance >= price){
-            return true;
-        }
-        return false;
+        return balance >= price;
     }
 
     // ppId - product portfolio Id, opId - order portfolio Id
     public Boolean checkProductPresenceInPortfolio(Long ppId, Long opId){
         // check product portfolioId against order portfolioId, if it matches then product is in portfolio
-        if(ppId.equals(opId)){
-            return true;
-        }
-        return false;
+        return ppId.equals(opId);
     }
 
     public Boolean validateSellQuantity(Integer productQuantity, Integer orderQuantity){
-        if(productQuantity >= orderQuantity){
-            return true;
-        }
-        return false;
+        return productQuantity >= orderQuantity;
     }
 
     public Boolean validateBuyPrice(Double orderBuyPrice, Double marketBuyPrice, Double maxPriceShift){
-        if(orderBuyPrice >= (marketBuyPrice - maxPriceShift)){
-            return true;
-        }
-        return false; // client's buying price is too low
+        return orderBuyPrice >= (marketBuyPrice - maxPriceShift);// client's buying price is too low
     }
 
     public Boolean validateSellPrice(Double orderSellPrice, Double marketSellPrice, Double maxPriceShift){
-        if(orderSellPrice <= (marketSellPrice + maxPriceShift)){
-            return true;
-        }
-        return false; // client's selling price is too expensive
+        return orderSellPrice <= (marketSellPrice + maxPriceShift);// client's selling price is too expensive
     }
 
     public Boolean validateBuyLimit(Integer buyQuantity, Integer marketBuyLimit){
-        if(buyQuantity <= marketBuyLimit){
-            return true;
-        }
-        return false;
+        return buyQuantity <= marketBuyLimit;
     }
 
     public Boolean validateSellLimit(Integer sellQuantity, Integer marketSellLimit){
-        if(sellQuantity <= marketSellLimit){
-            return true;
-        }
-        return false;
+        return sellQuantity <= marketSellLimit;
     }
 
-    public Mono<MarketData> getMarketData(String ticker){
-        return webClient.get()
+    public MarketData getMarketData(String ticker){
+        return webClient.build()
+                .get()
                 .uri("https://exchange.matraining.com/md/" + ticker)
                 .retrieve()
                 .onStatus(httpStatus -> HttpStatus.NOT_FOUND.equals(httpStatus),
                         clientResponse -> Mono.empty())
-                .bodyToMono(MarketData.class);
+                .bodyToMono(MarketData.class)
+                .block();
     }
-
 }
