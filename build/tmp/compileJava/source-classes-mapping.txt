@@ -1,2 +1,0 @@
-com/example/OrderValidationService/OrderValidationServiceApplication.java
- com.example.OrderValidationService.OrderValidationServiceApplication
