@@ -1,25 +1,18 @@
 package com.example.ordervalidationservice.soapservice;
 
 import com.example.ordervalidationservice.MarketData;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
-import reactor.core.publisher.Mono;
-
-import java.util.Objects;
 
 
 @Endpoint
 public class ReceiveOrderEndpoint {
 
-    @Autowired
-    private WebClient.Builder webClient;
+
+    WebClient webClient = WebClient.create();
 
     @PayloadRoot(namespace = "http://ordervalidationservice.example.com/soapservice", localPart = "SendOrderRequest")
     @ResponsePayload
@@ -34,13 +27,14 @@ public class ReceiveOrderEndpoint {
         // market data
         MarketData marketData = getMarketData(request.getOrder().getProduct().getTicker());
 
+
         // Order Validation
         if (request.getOrder().getSide().equals("Buy")){
             Boolean isBalanceValid = validateAccBalance(request.getOrder().getClient().getAccBalance(), request.getOrder().getPrice());
             if(isBalanceValid){
-                Boolean isBuyPriceValid = validateBuyPrice(request.getOrder().getPrice(), marketData.getBID_PRICE(), marketData.getMAX_PRICE_SHIFT());
+                Boolean isBuyPriceValid = validateBuyPrice(request.getOrder().getPrice(), marketData.getBid_price(), marketData.getMax_price_shift());
                 if(isBuyPriceValid){
-                    Boolean isBuyLimitValid = validateBuyLimit(request.getOrder().getQuantity(), marketData.getBUY_LIMIT());
+                    Boolean isBuyLimitValid = validateBuyLimit(request.getOrder().getQuantity(), marketData.getBuy_limit());
                     if(isBuyLimitValid){
                         response.setIsValidated(true);
                         response.setStatus("Accepted");
@@ -61,9 +55,9 @@ public class ReceiveOrderEndpoint {
             if(isPresent){
                 Boolean isSellQuantityValid = validateSellQuantity(request.getOrder().getProduct().getProdQuantity(), request.getOrder().getQuantity());
                 if(isSellQuantityValid){
-                    Boolean isSellPriceValid = validateSellPrice(request.getOrder().getPrice(), marketData.getASK_PRICE(), marketData.getMAX_PRICE_SHIFT());
+                    Boolean isSellPriceValid = validateSellPrice(request.getOrder().getPrice(), marketData.getAsk_price(), marketData.getMax_price_shift());
                     if(isSellPriceValid){
-                        Boolean isSellLimitValid = validateSellLimit(request.getOrder().getQuantity(), marketData.getSELL_LIMIT());
+                        Boolean isSellLimitValid = validateSellLimit(request.getOrder().getQuantity(), marketData.getSell_limit());
                         if(isSellLimitValid){
                             response.setIsValidated(true);
                             response.setStatus("Accepted");
@@ -120,13 +114,12 @@ public class ReceiveOrderEndpoint {
     }
 
     public MarketData getMarketData(String ticker){
-        return webClient.build()
+        return webClient
                 .get()
                 .uri("https://exchange.matraining.com/md/" + ticker)
                 .retrieve()
-                .onStatus(httpStatus -> HttpStatus.NOT_FOUND.equals(httpStatus),
-                        clientResponse -> Mono.empty())
                 .bodyToMono(MarketData.class)
                 .block();
+
     }
 }
