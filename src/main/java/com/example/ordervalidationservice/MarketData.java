@@ -1,40 +1,36 @@
 package com.example.ordervalidationservice;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@NoArgsConstructor
+@ToString
+@Data
 public class MarketData {
-    private Double LAST_TRADED_PRICE;
-    private Double BID_PRICE;
-    private Integer SELL_LIMIT;
-    private Double MAX_PRICE_SHIFT;
-    private String TICKER;
-    private Double ASK_PRICE;
-    private Integer BUY_LIMIT;
+    private Double last_traded_price;
+    private Double bid_price;
+    private Integer sell_limit;
+    private Double max_price_shift;
+    private String ticker;
+    private Double ask_price;
+    private Integer buy_limit;
 
-    public Double getLAST_TRADED_PRICE() {
-        return LAST_TRADED_PRICE;
+    public MarketData(
+            @JsonProperty("LAST_TRADED_PRICE") Double last_traded_price,
+            @JsonProperty("BID_PRICE") Double bid_price,
+            @JsonProperty("SELL_LIMIT") int sell_limit,
+            @JsonProperty("MAX_PRICE_SHIFT") Double max_price_shift,
+            @JsonProperty("TICKER") String ticker,
+            @JsonProperty("ASK_PRICE")Double ask_price,
+            @JsonProperty("BUY_LIMIT") int buy_limit) {
+        this.last_traded_price = last_traded_price;
+        this.bid_price = bid_price;
+        this.sell_limit = sell_limit;
+        this.max_price_shift = max_price_shift;
+        this.ticker = ticker;
+        this.ask_price = ask_price;
+        this.buy_limit = buy_limit;
     }
-
-    public Double getBID_PRICE() {
-        return BID_PRICE;
-    }
-
-    public Integer getSELL_LIMIT() {
-        return SELL_LIMIT;
-    }
-
-    public Double getMAX_PRICE_SHIFT() {
-        return MAX_PRICE_SHIFT;
-    }
-
-    public String getTICKER() {
-        return TICKER;
-    }
-
-    public Double getASK_PRICE() {
-        return ASK_PRICE;
-    }
-
-    public Integer getBUY_LIMIT() {
-        return BUY_LIMIT;
-    }
-
 }
