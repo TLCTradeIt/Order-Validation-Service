@@ -31,6 +31,6 @@ public class PublisherConfig {
 
     @Bean
     public ChannelTopic topic(){
-        return new ChannelTopic("pubsub-with-elvis");
+        return new ChannelTopic("order-from-ovs");
     }
 }

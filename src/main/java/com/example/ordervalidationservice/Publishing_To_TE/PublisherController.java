@@ -19,8 +19,8 @@ public class PublisherController {
 
 
     @PostMapping("/publish")
-    public String publish(@RequestBody MessageDto product){
-        template.convertAndSend(topic.getTopic(),product.toString());
+    public String publish(@RequestBody OrderDto order){
+        template.convertAndSend(topic.getTopic(),order.toString());
         return "Event has been published";
     }
 }
