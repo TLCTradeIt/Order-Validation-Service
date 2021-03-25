@@ -1,6 +1,13 @@
 package com.example.ordervalidationservice.soapservice;
 
 import com.example.ordervalidationservice.MarketData;
+import com.example.ordervalidationservice.Publishing_To_TE.OrderDto;
+import com.example.ordervalidationservice.Publishing_To_TE.models.Client;
+import com.example.ordervalidationservice.Publishing_To_TE.models.Portfolio;
+import com.example.ordervalidationservice.Publishing_To_TE.models.Product;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
@@ -10,6 +17,14 @@ import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
 @Endpoint
 public class ReceiveOrderEndpoint {
+
+    @Bean
+	public RestTemplate getRestTemplate(){
+		return new RestTemplate();
+	}
+
+	@Autowired
+	private RestTemplate restTemplate;
 
 
     WebClient webClient = WebClient.create();
@@ -39,13 +54,20 @@ public class ReceiveOrderEndpoint {
                         response.setIsValidated(true);
                         response.setStatus("Accepted");
                         response.setMessage("Order has been accepted");
+
+                       // send to trading engine
+                        new Thread(() -> {
+                            OrderDto postResponse  = postOrderObject(request);
+                            System.out.println(postResponse);
+                        }).start();
+
                     }
                     else {
                         response.setMessage("Buy quantity limit exceeded");
                     }
                 }
                 else {
-                    response.setMessage("Buying price is too low");
+                    response.setMessage("Buying price is out of range");
                 }
             }else {
                 response.setMessage("Insufficient Funds");
@@ -62,13 +84,19 @@ public class ReceiveOrderEndpoint {
                             response.setIsValidated(true);
                             response.setStatus("Accepted");
                             response.setMessage("Order has been accepted");
+
+                            // send to trading engine
+                            new Thread(() -> {
+                                OrderDto postResponse  = postOrderObject(request);
+                                System.out.println(postResponse);
+                            }).start();
                         }
                         else {
                             response.setMessage("Sell quantity limit exceeded");
                         }
                     }
                     else {
-                        response.setMessage("Selling price is too high");
+                        response.setMessage("Selling price is out of range");
                     }
                 }
                 else {
@@ -98,11 +126,11 @@ public class ReceiveOrderEndpoint {
     }
 
     public Boolean validateBuyPrice(Double orderBuyPrice, Double marketBuyPrice, Double maxPriceShift){
-        return orderBuyPrice >= (marketBuyPrice - maxPriceShift);// client's buying price is too low
+        return orderBuyPrice >= (marketBuyPrice - maxPriceShift)  && orderBuyPrice <= (marketBuyPrice + maxPriceShift);
     }
 
     public Boolean validateSellPrice(Double orderSellPrice, Double marketSellPrice, Double maxPriceShift){
-        return orderSellPrice <= (marketSellPrice + maxPriceShift);// client's selling price is too expensive
+        return orderSellPrice <= (marketSellPrice + maxPriceShift) && orderSellPrice >= (marketSellPrice - maxPriceShift);
     }
 
     public Boolean validateBuyLimit(Integer buyQuantity, Integer marketBuyLimit){
@@ -120,6 +148,31 @@ public class ReceiveOrderEndpoint {
                 .retrieve()
                 .bodyToMono(MarketData.class)
                 .block();
+    }
 
+    public OrderDto postOrderObject(SendOrderRequest request){
+        // prepping order to be sent
+        Portfolio orderPortfolio = new Portfolio(request.getOrder().getPortfolio().getPortfolioId());
+        Portfolio productPortfolio = new Portfolio(request.getOrder().getProduct().getPortfolio().getPortfolioId());
+        Product product = new Product(request.getOrder().getProduct().getProductId(), request.getOrder().getProduct().getTicker(), request.getOrder().getProduct().getExchange(), request.getOrder().getProduct().getProdQuantity(), productPortfolio);
+        Client client = new Client(request.getOrder().getClient().getClientId(), request.getOrder().getClient().getAccBalance());
+
+        OrderDto orderDto = new OrderDto(
+                request.getOrder().getOrderId(),
+                request.getOrder().getQuantity(),
+                request.getOrder().getPrice(),
+                request.getOrder().getSide(),
+                null,
+                product,
+                client,
+                orderPortfolio);
+
+        // sending accepted order to the trade engine
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://order-validation.herokuapp.com/publish";
+        OrderDto result = restTemplate.postForObject(url , orderDto, OrderDto.class);
+        System.out.println(result);
+
+        return result;
     }
 }
