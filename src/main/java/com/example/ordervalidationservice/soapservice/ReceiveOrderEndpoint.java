@@ -40,16 +40,17 @@ public class ReceiveOrderEndpoint {
         response.setStatus("Rejected");
 
         // market data
-        MarketData marketData = getMarketData(request.getOrder().getProduct().getTicker());
+        MarketData marketData1 = getMarketData(request.getOrder().getProduct().getTicker(), "exchange");
+        MarketData marketData2 = getMarketData(request.getOrder().getProduct().getTicker(), "exchange2");
 
 
         // Order Validation
         if (request.getOrder().getSide().equals("Buy")){
-            Boolean isBalanceValid = validateAccBalance(request.getOrder().getClient().getAccBalance(), request.getOrder().getPrice());
+            Boolean isBalanceValid = validateAccBalance(request.getOrder().getClient().getAccBalance(), request.getOrder().getPrice(), request.getOrder().getQuantity());
             if(isBalanceValid){
-                Boolean isBuyPriceValid = validateBuyPrice(request.getOrder().getPrice(), marketData.getBid_price(), marketData.getMax_price_shift());
+                Boolean isBuyPriceValid = validateBuyPrice(request.getOrder().getPrice(), marketData1.getBid_price(), marketData2.getBid_price(), marketData1.getMax_price_shift());
                 if(isBuyPriceValid){
-                    Boolean isBuyLimitValid = validateBuyLimit(request.getOrder().getQuantity(), marketData.getBuy_limit());
+                    Boolean isBuyLimitValid = validateBuyLimit(request.getOrder().getQuantity(), marketData1.getBuy_limit());
                     if(isBuyLimitValid){
                         response.setIsValidated(true);
                         response.setStatus("Accepted");
@@ -77,9 +78,9 @@ public class ReceiveOrderEndpoint {
             if(isPresent){
                 Boolean isSellQuantityValid = validateSellQuantity(request.getOrder().getProduct().getProdQuantity(), request.getOrder().getQuantity());
                 if(isSellQuantityValid){
-                    Boolean isSellPriceValid = validateSellPrice(request.getOrder().getPrice(), marketData.getAsk_price(), marketData.getMax_price_shift());
+                    Boolean isSellPriceValid = validateSellPrice(request.getOrder().getPrice(), marketData1.getAsk_price(), marketData2.getAsk_price(), marketData1.getMax_price_shift());
                     if(isSellPriceValid){
-                        Boolean isSellLimitValid = validateSellLimit(request.getOrder().getQuantity(), marketData.getSell_limit());
+                        Boolean isSellLimitValid = validateSellLimit(request.getOrder().getQuantity(), marketData1.getSell_limit());
                         if(isSellLimitValid){
                             response.setIsValidated(true);
                             response.setStatus("Accepted");
@@ -111,8 +112,8 @@ public class ReceiveOrderEndpoint {
         return response;
     }
 
-    public Boolean validateAccBalance(Double balance, Double price){
-        return balance >= price;
+    public Boolean validateAccBalance(Double balance, Double price, Integer quantity){
+        return balance >= (price * quantity);
     }
 
     // ppId - product portfolio Id, opId - order portfolio Id
@@ -125,12 +126,18 @@ public class ReceiveOrderEndpoint {
         return productQuantity >= orderQuantity;
     }
 
-    public Boolean validateBuyPrice(Double orderBuyPrice, Double marketBuyPrice, Double maxPriceShift){
-        return orderBuyPrice >= (marketBuyPrice - maxPriceShift)  && orderBuyPrice <= (marketBuyPrice + maxPriceShift);
+    public Boolean validateBuyPrice(Double orderBuyPrice, Double market1BuyPrice, Double market2BuyPrice, Double maxPriceShift){
+        if(market1BuyPrice >= market2BuyPrice){
+            return (orderBuyPrice >= (market2BuyPrice - maxPriceShift)  && orderBuyPrice <= (market1BuyPrice + maxPriceShift));
+        }
+        return (orderBuyPrice >= (market1BuyPrice - maxPriceShift)  && orderBuyPrice <= (market2BuyPrice + maxPriceShift));
     }
 
-    public Boolean validateSellPrice(Double orderSellPrice, Double marketSellPrice, Double maxPriceShift){
-        return orderSellPrice <= (marketSellPrice + maxPriceShift) && orderSellPrice >= (marketSellPrice - maxPriceShift);
+    public Boolean validateSellPrice(Double orderSellPrice, Double market1SellPrice, Double market2SellPrice, Double maxPriceShift){
+        if(market1SellPrice >= market2SellPrice){
+            return (orderSellPrice <= (market1SellPrice + maxPriceShift) && orderSellPrice >= (market2SellPrice - maxPriceShift));
+        }
+        return (orderSellPrice <= (market2SellPrice + maxPriceShift) && orderSellPrice >= (market1SellPrice - maxPriceShift));
     }
 
     public Boolean validateBuyLimit(Integer buyQuantity, Integer marketBuyLimit){
@@ -141,10 +148,10 @@ public class ReceiveOrderEndpoint {
         return sellQuantity <= marketSellLimit;
     }
 
-    public MarketData getMarketData(String ticker){
+    public MarketData getMarketData(String ticker, String exchange){
         return webClient
                 .get()
-                .uri("https://exchange.matraining.com/md/" + ticker)
+                .uri("https://" + exchange + ".matraining.com/md/" + ticker)
                 .retrieve()
                 .bodyToMono(MarketData.class)
                 .block();
@@ -169,7 +176,8 @@ public class ReceiveOrderEndpoint {
 
         // sending accepted order to the trade engine
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://order-validation.herokuapp.com/publish";
+//        String url = "http://order-validation.herokuapp.com/publish";
+        String url = "http://localhost:5009/publish";
         OrderDto result = restTemplate.postForObject(url , orderDto, OrderDto.class);
         System.out.println(result);
 
