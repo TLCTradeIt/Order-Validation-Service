@@ -176,8 +176,8 @@ public class ReceiveOrderEndpoint {
 
         // sending accepted order to the trade engine
         RestTemplate restTemplate = new RestTemplate();
-//        String url = "http://order-validation.herokuapp.com/publish";
-        String url = "http://localhost:5009/publish";
+        String url = "http://order-validation.herokuapp.com/publish";
+//        String url = "http://localhost:5009/publish";
         OrderDto result = restTemplate.postForObject(url , orderDto, OrderDto.class);
         System.out.println(result);
 
