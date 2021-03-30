@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@NoArgsConstructor
-@ToString
-@Data
+//@NoArgsConstructor
+//@ToString
+//@Data
 public class MarketData {
     private Double last_traded_price;
     private Double bid_price;
@@ -32,5 +32,36 @@ public class MarketData {
         this.ticker = ticker;
         this.ask_price = ask_price;
         this.buy_limit = buy_limit;
+    }
+
+    public MarketData() {
+    }
+
+    public Double getLast_traded_price() {
+        return last_traded_price;
+    }
+
+    public Double getBid_price() {
+        return bid_price;
+    }
+
+    public Integer getSell_limit() {
+        return sell_limit;
+    }
+
+    public Double getMax_price_shift() {
+        return max_price_shift;
+    }
+
+    public String getTicker() {
+        return ticker;
+    }
+
+    public Double getAsk_price() {
+        return ask_price;
+    }
+
+    public Integer getBuy_limit() {
+        return buy_limit;
     }
 }
