@@ -128,16 +128,16 @@ public class ReceiveOrderEndpoint {
 
     public Boolean validateBuyPrice(Double orderBuyPrice, Double market1BuyPrice, Double market2BuyPrice, Double maxPriceShift){
         if(market1BuyPrice >= market2BuyPrice){
-            return (orderBuyPrice >= (market2BuyPrice - maxPriceShift)  && orderBuyPrice <= (market1BuyPrice + maxPriceShift));
+            return (orderBuyPrice >= (market1BuyPrice - maxPriceShift)  && orderBuyPrice <= (market2BuyPrice + maxPriceShift));
         }
-        return (orderBuyPrice >= (market1BuyPrice - maxPriceShift)  && orderBuyPrice <= (market2BuyPrice + maxPriceShift));
+        return (orderBuyPrice >= (market2BuyPrice - maxPriceShift)  && orderBuyPrice <= (market1BuyPrice + maxPriceShift));
     }
 
     public Boolean validateSellPrice(Double orderSellPrice, Double market1SellPrice, Double market2SellPrice, Double maxPriceShift){
         if(market1SellPrice >= market2SellPrice){
-            return (orderSellPrice <= (market1SellPrice + maxPriceShift) && orderSellPrice >= (market2SellPrice - maxPriceShift));
+            return (orderSellPrice <= (market2SellPrice + maxPriceShift) && orderSellPrice >= (market1SellPrice - maxPriceShift));
         }
-        return (orderSellPrice <= (market2SellPrice + maxPriceShift) && orderSellPrice >= (market1SellPrice - maxPriceShift));
+        return (orderSellPrice <= (market1SellPrice + maxPriceShift) && orderSellPrice >= (market2SellPrice - maxPriceShift));
     }
 
     public Boolean validateBuyLimit(Integer buyQuantity, Integer marketBuyLimit){
@@ -176,8 +176,8 @@ public class ReceiveOrderEndpoint {
 
         // sending accepted order to the trade engine
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://order-validation.herokuapp.com/publish";
-//        String url = "http://localhost:5009/publish";
+//        String url = "http://order-validation.herokuapp.com/publish";
+        String url = "http://localhost:5009/publish";
         OrderDto result = restTemplate.postForObject(url , orderDto, OrderDto.class);
         System.out.println(result);
 

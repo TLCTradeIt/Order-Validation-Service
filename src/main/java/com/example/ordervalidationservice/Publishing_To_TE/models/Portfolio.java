@@ -4,9 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Portfolio {
     private Long portfolioId;
+
+    public Portfolio() {
+    }
+
+    public Portfolio(Long portfolioId) {
+        this.portfolioId = portfolioId;
+    }
+
+    public Long getPortfolioId() {
+        return portfolioId;
+    }
+
 }
